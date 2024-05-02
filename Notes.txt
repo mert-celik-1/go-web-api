@@ -1,0 +1,2 @@
+Paginate kısmına detaylı bakılacak özellikle dynamic filter yapısı
+Common -> Mapper -> Type converter todo
