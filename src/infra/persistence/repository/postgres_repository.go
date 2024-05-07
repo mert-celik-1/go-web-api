@@ -6,6 +6,7 @@ import (
 	"go-web-api/src/common"
 	"go-web-api/src/config"
 	"go-web-api/src/constant"
+	"go-web-api/src/domain/filter"
 	"go-web-api/src/infra/persistence/database"
 	"go-web-api/src/pkg/service_errors"
 	"time"
@@ -83,4 +84,46 @@ func (r BaseRepository[TEntity]) Delete(ctx context.Context, id int) error {
 	}
 	tx.Commit()
 	return nil
+}
+
+func (r BaseRepository[TEntity]) GetById(ctx context.Context, id int) (TEntity, error) {
+	model := new(TEntity)
+	db := database.Preload(r.database, r.preloads)
+	err := db.
+		Where(softDeleteExp, id).
+		First(model).
+		Error
+	if err != nil {
+		return *model, err
+	}
+	return *model, nil
+}
+
+func (r BaseRepository[TEntity]) GetByFilter(ctx context.Context, req filter.PaginationInputWithFilter) (int64, *[]TEntity, error) {
+	model := new(TEntity)
+	var items *[]TEntity
+
+	db := database.Preload(r.database, r.preloads)
+	query := database.GenerateDynamicQuery[TEntity](&req.DynamicFilter)
+	sort := database.GenerateDynamicSort[TEntity](&req.DynamicFilter)
+	var totalRows int64 = 0
+
+	db.
+		Model(model).
+		Where(query).
+		Count(&totalRows)
+
+	err := db.
+		Where(query).
+		Offset(req.GetOffset()).
+		Limit(req.GetPageSize()).
+		Order(sort).
+		Find(&items).
+		Error
+
+	if err != nil {
+		return 0, &[]TEntity{}, err
+	}
+	return totalRows, items, err
+
 }

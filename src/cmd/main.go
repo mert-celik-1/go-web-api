@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"go-web-api/src/config"
-	"go-web-api/src/infra/cache"
-	"time"
+	"go-web-api/src/infra/persistence/database"
+	"go-web-api/src/infra/persistence/migration"
 )
 
 func main() {
@@ -12,19 +12,11 @@ func main() {
 
 	cfg := config.GetConfig()
 
-	err := cache.InitRedis(cfg)
-	defer cache.CloseRedis()
-
+	err := database.InitDb(cfg)
+	defer database.CloseDb()
 	if err != nil {
-		fmt.Print(err)
+		fmt.Println(err.Error())
 	}
-
-	cli := cache.GetRedis()
-
-	cache.Set(cli, "as2", "test2", time.Hour)
-
-	as, _ := cache.Get[string](cli, "as2")
-
-	fmt.Println(as)
+	migration.Up1()
 
 }
