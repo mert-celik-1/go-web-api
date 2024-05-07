@@ -1,2 +1,7 @@
 Paginate kısmına detaylı bakılacak özellikle dynamic filter yapısı
 Common -> Mapper -> Type converter todo
+Persistence -> database -> queryBuilder tamamen baştan sona bakılacak
+PreLoad entity'e bakılacak
+baseRepoda update kısmında snake case'ye çevrilmesine bakılacak
+softDeleteExp gerekli mi nasıl düzenlenir
+baseRepoya komple bak

@@ -10,8 +10,9 @@ import (
 )
 
 type Config struct {
-	Server ServerConfig
-	Redis  RedisConfig
+	Server   ServerConfig
+	Redis    RedisConfig
+	Postgres PostgresConfig
 }
 
 type ServerConfig struct {
@@ -30,6 +31,18 @@ type RedisConfig struct {
 	IdleCheckFrequency time.Duration
 	PoolSize           int
 	PoolTimeout        time.Duration
+}
+
+type PostgresConfig struct {
+	Host            string
+	Port            string
+	User            string
+	Password        string
+	DbName          string
+	SSLMode         string
+	MaxIdleConns    int
+	MaxOpenConns    int
+	ConnMaxLifetime time.Duration
 }
 
 func GetConfig() *Config {
