@@ -8,6 +8,7 @@ import (
 	"go-web-api/src/constant"
 	"go-web-api/src/domain/filter"
 	"go-web-api/src/infra/persistence/database"
+	"go-web-api/src/pkg/logging"
 	"go-web-api/src/pkg/service_errors"
 	"time"
 
@@ -19,12 +20,14 @@ const softDeleteExp string = "id = ? and deleted_by is null"
 type BaseRepository[TEntity any] struct {
 	database *gorm.DB
 	preloads []database.PreloadEntity
+	logger   logging.Logger
 }
 
 func NewBaseRepository[TEntity any](cfg *config.Config, preloads []database.PreloadEntity) *BaseRepository[TEntity] {
 	return &BaseRepository[TEntity]{
 		database: database.GetDb(),
 		preloads: preloads,
+		logger:   logging.NewLogger(cfg),
 	}
 }
 
@@ -35,6 +38,7 @@ func (r BaseRepository[TEntity]) Create(ctx context.Context, entity TEntity) (TE
 
 	if err != nil {
 		tx.Rollback()
+		r.logger.Error(logging.Postgres, logging.Insert, err.Error(), nil)
 		return entity, err
 	}
 
@@ -55,6 +59,7 @@ func (r BaseRepository[TEntity]) Update(ctx context.Context, id int, entity map[
 	tx := r.database.WithContext(ctx).Begin()
 	if err := tx.Model(model).Where(softDeleteExp, id).Updates(snakeMap).Error; err != nil {
 		tx.Rollback()
+		r.logger.Error(logging.Postgres, logging.Update, err.Error(), nil)
 		return *model, err
 	}
 	tx.Commit()
@@ -80,6 +85,7 @@ func (r BaseRepository[TEntity]) Delete(ctx context.Context, id int) error {
 		Updates(deleteMap).
 		RowsAffected; cnt == 0 {
 		tx.Rollback()
+		r.logger.Error(logging.Postgres, logging.Update, service_errors.RecordNotFound, nil)
 		return &service_errors.ServiceError{EndUserMessage: service_errors.RecordNotFound}
 	}
 	tx.Commit()

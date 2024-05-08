@@ -13,6 +13,7 @@ type Config struct {
 	Server   ServerConfig
 	Redis    RedisConfig
 	Postgres PostgresConfig
+	Logger   LoggerConfig
 }
 
 type ServerConfig struct {
@@ -43,6 +44,13 @@ type PostgresConfig struct {
 	MaxIdleConns    int
 	MaxOpenConns    int
 	ConnMaxLifetime time.Duration
+}
+
+type LoggerConfig struct {
+	FilePath string
+	Encoding string
+	Level    string
+	Logger   string
 }
 
 func GetConfig() *Config {

@@ -6,6 +6,7 @@ import (
 	"go-web-api/src/constant"
 	"go-web-api/src/domain/models"
 	"go-web-api/src/infra/persistence/database"
+	"go-web-api/src/pkg/logging"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -27,17 +28,20 @@ func (r *PostgresUserRepository) CreateUser(ctx context.Context, u models.User) 
 
 	roleId, err := r.GetDefaultRole(ctx)
 	if err != nil {
+		r.logger.Error(logging.Postgres, logging.DefaultRoleNotFound, err.Error(), nil)
 		return u, err
 	}
 	tx := r.database.WithContext(ctx).Begin()
 	err = tx.Create(&u).Error
 	if err != nil {
 		tx.Rollback()
+		r.logger.Error(logging.Postgres, logging.Rollback, err.Error(), nil)
 		return u, err
 	}
 	err = tx.Create(&models.UserRole{RoleId: roleId, UserId: u.Id}).Error
 	if err != nil {
 		tx.Rollback()
+		r.logger.Error(logging.Postgres, logging.Rollback, err.Error(), nil)
 		return u, err
 	}
 	tx.Commit()
@@ -73,6 +77,7 @@ func (r *PostgresUserRepository) ExistsEmail(ctx context.Context, email string) 
 		Where("email = ?", email).
 		Find(&exists).
 		Error; err != nil {
+		r.logger.Error(logging.Postgres, logging.Select, err.Error(), nil)
 		return false, err
 	}
 	return exists, nil
@@ -85,6 +90,7 @@ func (r *PostgresUserRepository) ExistsUsername(ctx context.Context, username st
 		Where(userFilterExp, username).
 		Find(&exists).
 		Error; err != nil {
+		r.logger.Error(logging.Postgres, logging.Select, err.Error(), nil)
 		return false, err
 	}
 	return exists, nil
@@ -97,6 +103,7 @@ func (r *PostgresUserRepository) ExistsMobileNumber(ctx context.Context, mobileN
 		Where("mobile_number = ?", mobileNumber).
 		Find(&exists).
 		Error; err != nil {
+		r.logger.Error(logging.Postgres, logging.Select, err.Error(), nil)
 		return false, err
 	}
 	return exists, nil

@@ -5,4 +5,4 @@ PreLoad entity'e bakılacak
 baseRepoda update kısmında snake case'ye çevrilmesine bakılacak
 softDeleteExp gerekli mi nasıl düzenlenir
 baseRepoya komple bak
-[]interface{}{} 
+loglamada sync.Once'ye bakılacak ve zerologda pointer şart mı buna bak
