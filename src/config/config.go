@@ -14,6 +14,8 @@ type Config struct {
 	Redis    RedisConfig
 	Postgres PostgresConfig
 	Logger   LoggerConfig
+	Password PasswordConfig
+	Otp      OtpConfig
 }
 
 type ServerConfig struct {
@@ -51,6 +53,21 @@ type LoggerConfig struct {
 	Encoding string
 	Level    string
 	Logger   string
+}
+
+type PasswordConfig struct {
+	IncludeChars     bool
+	IncludeDigits    bool
+	MinLength        int
+	MaxLength        int
+	IncludeUppercase bool
+	IncludeLowercase bool
+}
+
+type OtpConfig struct {
+	ExpireTime time.Duration
+	Digits     int
+	Limiter    time.Duration
 }
 
 func GetConfig() *Config {
