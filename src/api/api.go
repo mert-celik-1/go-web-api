@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"go-web-api/src/api/middleware"
 	"go-web-api/src/api/router"
 	"go-web-api/src/api/validation"
 	"go-web-api/src/config"
@@ -19,12 +20,11 @@ func InitServer(cfg *config.Config) {
 	gin.SetMode(cfg.Server.RunMode)
 	r := gin.New()
 	RegisterValidators()
-	/*
-		r.Use(middleware.DefaultStructuredLogger(cfg))
-		r.Use(middleware.Cors(cfg))
-		r.Use(middleware.Prometheus())
-		r.Use(gin.Logger(), gin.CustomRecovery(middleware.ErrorHandler) /*middleware.TestMiddleware() middleware.LimitByRequest())
-	*/
+
+	r.Use(middleware.DefaultStructuredLogger(cfg))
+	r.Use(middleware.Cors(cfg))
+	r.Use(gin.Logger(), gin.CustomRecovery(middleware.ErrorHandler) /*middleware.TestMiddleware()*/, middleware.LimitByRequest())
+
 	RegisterRoutes(r, cfg)
 	logger := logging.NewLogger(cfg)
 	logger.Info(logging.General, logging.Startup, "Started", nil)
