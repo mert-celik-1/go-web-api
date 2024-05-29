@@ -11,11 +11,13 @@ import (
 
 type Config struct {
 	Server   ServerConfig
-	Redis    RedisConfig
 	Postgres PostgresConfig
-	Logger   LoggerConfig
+	Redis    RedisConfig
 	Password PasswordConfig
+	Cors     CorsConfig
+	Logger   LoggerConfig
 	Otp      OtpConfig
+	JWT      JWTConfig
 }
 
 type ServerConfig struct {
@@ -24,16 +26,11 @@ type ServerConfig struct {
 	RunMode      string
 }
 
-type RedisConfig struct {
-	Host               string
-	Port               string
-	Db                 string
-	DialTimeout        time.Duration
-	ReadTimeout        time.Duration
-	WriteTimeout       time.Duration
-	IdleCheckFrequency time.Duration
-	PoolSize           int
-	PoolTimeout        time.Duration
+type LoggerConfig struct {
+	FilePath string
+	Encoding string
+	Level    string
+	Logger   string
 }
 
 type PostgresConfig struct {
@@ -48,11 +45,17 @@ type PostgresConfig struct {
 	ConnMaxLifetime time.Duration
 }
 
-type LoggerConfig struct {
-	FilePath string
-	Encoding string
-	Level    string
-	Logger   string
+type RedisConfig struct {
+	Host               string
+	Port               string
+	Password           string
+	Db                 string
+	DialTimeout        time.Duration
+	ReadTimeout        time.Duration
+	WriteTimeout       time.Duration
+	IdleCheckFrequency time.Duration
+	PoolSize           int
+	PoolTimeout        time.Duration
 }
 
 type PasswordConfig struct {
@@ -64,10 +67,21 @@ type PasswordConfig struct {
 	IncludeLowercase bool
 }
 
+type CorsConfig struct {
+	AllowOrigins string
+}
+
 type OtpConfig struct {
 	ExpireTime time.Duration
 	Digits     int
 	Limiter    time.Duration
+}
+
+type JWTConfig struct {
+	AccessTokenExpireDuration  time.Duration
+	RefreshTokenExpireDuration time.Duration
+	Secret                     string
+	RefreshSecret              string
 }
 
 func GetConfig() *Config {
@@ -102,7 +116,6 @@ func ParseConfig(v *viper.Viper) (*Config, error) {
 	}
 	return &cfg, nil
 }
-
 func LoadConfig(filename string, fileType string) (*viper.Viper, error) {
 	v := viper.New()
 	v.SetConfigType(fileType)
